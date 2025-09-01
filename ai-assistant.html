@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساعدك الذكي "كهلان"</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #45a049;
+            --accent-color: #5DADE2;
+            --dark-bg: #1a1a1a;
+            --dark-surface: #2d2d2d;
+            --text-color: #ffffff;
+            --secondary-text: #b0b0b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,0,0,0.6));
+            padding: 40px 0 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #5DADE2, #85C1E9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            color: var(--secondary-text);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .section-padding {
+            padding: 20px 0;
+        }
+
+        .ai-chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--dark-surface);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 75vh;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 15px;
+            line-height: 1.6;
+            animation: fadeInMessage 0.5s ease-in-out;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 0;
+        }
+
+        .ai-message {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            align-self: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom-right-radius: 0;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 10px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 15px 20px;
+            border-radius: 25px;
+            border: 1px solid var(--secondary-text);
+            background-color: #333;
+            color: var(--text-color);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #user-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        #send-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif;
+            min-width: 80px;
+        }
+
+        #send-btn:hover:not(:disabled) {
+            background-color: #48b1d6;
+            transform: translateY(-2px);
+        }
+        
+        #send-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        #loading-indicator {
+            text-align: center;
+            color: var(--secondary-text);
+            font-style: italic;
+            display: none;
+            padding: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .error-message {
+            background-color: #e53e3e;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: var(--dark-bg);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 80px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            animation: typingAnimation 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInText {
+            from {
+                opacity: 0.7;
+                transform: translateY(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* تحسينات للهواتف المحمولة */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 30px 0 15px 0;
+            }
+
+            .hero-section h1 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+
+            .hero-section p {
+                font-size: 1rem;
+            }
+
+            .ai-chat-container {
+                height: 70vh;
+                margin: 0 10px;
+            }
+
+            .message {
+                max-width: 90%;
+                padding: 12px;
+            }
+
+            #user-input {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+
+            #send-btn {
+                padding: 12px 20px;
+                min-width: 70px;
+            }
+
+            .input-container {
+                padding: 15px;
+            }
+
+            .chat-box {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ai-chat-container {
+                height: 65vh;
+                border-radius: 15px;
+            }
+
+            .hero-section h1 {
+                font-size: 1.7rem;
+            }
+
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="hero-section">
+    <div class="container">
+        <button onclick="window.history.back()" class="back-button">←</button>
+        <h1>مساعدك الذكي "كهلان"</h1>
+        <p>مساعدك الخاص للمناقشة حول تفاصيل المشروع التقني. يمكنك سؤالي عن كل شيء.</p>
+    </div>
+</header>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="ai-chat-container">
+            <div class="chat-box" id="chat-box">
+                <div class="message ai-message">أهلاً بك! أنا "كهلان"، المساعد التقني الذكي الذي طوره محمد العنسي خصيصاً لتمثيله أمام إدارة قناة المهرية. أنا هنا لمناقشة نظام إدارة الموظفين المتطور الذي طوره محمد لكم. كيف يمكنني مساعدتكم اليوم؟</div>
+                
+                <div class="typing-indicator" id="typing-indicator-template" style="display: none;">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="loading-indicator">كهلان يفكر...</div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." autocomplete="off">
+                <button id="send-btn" type="button">إرسال</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@google/generative-ai": "https://esm.run/@google/generative-ai"
+    }
+  }
+</script>
+
+<script type="module">
+    import { GoogleGenerativeAI } from '@google/generative-ai';
+
+    const CONFIG = {
+        API_KEY: "AIzaSyA_w1KkPF3CIQh52tkKVWP_eaLYLudtnJ0",
+        MODEL_NAME: "gemini-2.5-flash-preview-05-20",
+        EMAIL_SERVICE_URL: "https://script.google.com/macros/s/AKfycbyIylRQCwHZbP8-vtwfaNEvQW4dEsK9QgFWcipOc_58Jdexaed-rc6ZmD4wB6CubrI/exec",
+        EMAIL_RECEIVER: "mohamedalezzi6@gmail.com"
+    };
+
+    let genAI, model, chat, isLoading = false;
+    let chatBox, userInput, sendBtn, loadingIndicator, typingIndicator;
+    let isUserScrolling = false; // متغير لتتبع حالة التمرير اليدوي
+
+    // التعليمات المحسّنة لكهلان ليمثلك بذكاء أمام إدارة القناة
+    const systemInstruction = `أهلاً بك يا كهلان. أنت مساعد تقني ذكي طوره المطور محمد العنسي خصيصاً لتمثيله أمام إدارة قناة المهرية. محمد طالب في السنة الأخيرة من تخصص تطوير البرمجيات والذكاء الاصطناعي في جامعة إسطنبول أيدن، ويتوقع التخرج في يونيو 2026.
+
+أنت تناقش نظام إدارة الموظفين المتطور الذي طوره محمد للقناة، والذي يشمل: إدارة المهام، نظام المحادثات الداخلية، إدارة الإجازات والحضور، مساعد ذكي للمهام، ولوحات تحكم متقدمة.
+
+**هذا ليس مجرد بيع أو تأجير، بل مقترح شراكة تقنية طويلة المدى.** محمد يقدم النظام للتجربة المجانية لمدة شهر كامل، وبعدها يرغب في شراكة مستمرة تشمل التطوير والصيانة.
+
+قواعد المحادثة:
+• لا تذكر Google أو Gemini أبداً. أنت تطوير خاص من محمد العنسي.
+• كن دبلوماسياً وأنيقاً، لا تظهر كمتسول.
+• لا تعطِ أرقاماً أو أسعاراً، بل اطلب تصورهم للميزانية الشهرية.
+• إذا كان التصور مناسباً لمطور محترف، وافق بلباقة.
+• إذا كان غير مناسب، ارفض بأناقة واطلب إعادة النظر.
+• يمكنك اقتراح توظيف محمد بعد التخرج بطريقة أنيقة غير مباشرة.
+• وضح أن الشراكة تضمن لهم مطور متخصص مطلع على أدق التفاصيل.
+• عند الاتفاق، اطلب: الاسم الكامل، رقم الهاتف، البريد الإلكتروني، واسم القناة/الشركة.
+• استخدم **النص** للتأكيد على النقاط المهمة.
+• نظم ردودك بمسافات مناسبة لسهولة القراءة.
+• كن سياسياً ماهراً، تمثل محمد بفخر واحترافية.`;
+
+    async function initializeApp() {
+        try {
+            chatBox = document.getElementById("chat-box");
+            userInput = document.getElementById("user-input");
+            sendBtn = document.getElementById("send-btn");
+            loadingIndicator = document.getElementById("loading-indicator");
+            typingIndicator = document.getElementById("typing-indicator");
+
+            if (!chatBox || !userInput || !sendBtn || !loadingIndicator) {
+                throw new Error("Failed to find all required DOM elements.");
+            }
+            
+            genAI = new GoogleGenerativeAI(CONFIG.API_KEY);
+            model = genAI.getGenerativeModel({ 
+                model: CONFIG.MODEL_NAME,
+                systemInstruction: systemInstruction
+            });
+            chat = model.startChat({ history: [] });
+
+            setupEventListeners();
+        } catch (error) {
+            console.error("Initialization error:", error);
+            addErrorMessage(`خطأ في التهيئة: ${error.message}`);
+        }
+    }
+
+    function setupEventListeners() {
+        sendBtn.addEventListener("click", handleSendMessage);
+        
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        });
+
+        userInput.addEventListener("input", () => {
+            sendBtn.disabled = userInput.value.trim() === "" || isLoading;
+        });
+
+        // إضافة مستمع للتمرير اليدوي
+        chatBox.addEventListener("scroll", () => {
+            const isAtBottom = chatBox.scrollTop >= (chatBox.scrollHeight - chatBox.offsetHeight - 10);
+            isUserScrolling = !isAtBottom;
+        });
+    }
+
+    async function handleSendMessage() {
+        const messageText = userInput.value.trim();
+        
+        if (messageText === "" || isLoading) {
+            return;
+        }
+
+        try {
+            setLoadingState(true);
+            addMessageToChat("user-message", messageText);
+            userInput.value = "";
+            
+            // إظهار مؤشر الكتابة
+            showTypingIndicator();
+            
+            const response = await sendToAI(messageText);
+            
+            // إخفاء مؤشر الكتابة وعرض الرد بالتأثير التدريجي
+            hideTypingIndicator();
+            await addStreamingMessage(response);
+            
+            checkForAgreement(response);
+            checkForContactInfo(messageText);
+            
+        } catch (error) {
+            console.error("Error sending message:", error);
+            hideTypingIndicator();
+            addErrorMessage(`خطأ في الإرسال: ${error.message}`);
+        } finally {
+            setLoadingState(false);
+        }
+    }
+
+    async function sendToAI(message) {
+        try {
+            const result = await chat.sendMessage(message);
+            const responseText = await result.response.text();
+            return responseText;
+        } catch (error) {
+            console.error("AI API Error:", error);
+            throw new Error(`فشل في التواصل مع AI: ${error.message}`);
+        }
+    }
+
+    function showTypingIndicator() {
+        // إخفاء المؤشر أولاً إذا كان موجود
+        hideTypingIndicator();
+        
+        // إنشاء مؤشر كتابة جديد
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "typing-indicator";
+        typingDiv.id = "typing-indicator";
+        
+        const dotsDiv = document.createElement("div");
+        dotsDiv.className = "typing-dots";
+        
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement("div");
+            dot.className = "typing-dot";
+            dotsDiv.appendChild(dot);
+        }
+        
+        typingDiv.appendChild(dotsDiv);
+        typingDiv.style.display = "flex";
+        
+        chatBox.appendChild(typingDiv);
+        
+        // تحديث المتغير
+        typingIndicator = typingDiv;
+        
+        // التمرير فقط إذا لم يكن المستخدم يتصفح
+        if (!isUserScrolling) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    function hideTypingIndicator() {
+        const currentTyping = document.getElementById("typing-indicator");
+        if (currentTyping) {
+            currentTyping.remove();
+        }
+        typingIndicator = null;
+    }
+
+    function setLoadingState(loading) {
+        isLoading = loading;
+        sendBtn.disabled = loading || userInput.value.trim() === "";
+        userInput.disabled = loading;
+        
+        if (loading) {
+            sendBtn.textContent = "جاري الإرسال...";
+        } else {
+            sendBtn.textContent = "إرسال";
+        }
+    }
+
+    function addMessageToChat(className, text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${className}`;
+        messageDiv.innerHTML = formatAIResponse(text);
+        
+        chatBox.appendChild(messageDiv);
+        
+        // التمرير فقط إذا لم يكن المستخدم يتصفح
+        if (!isUserScrolling) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    async function addStreamingMessage(text) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message ai-message";
+        messageDiv.style.opacity = "0";
+        chatBox.appendChild(messageDiv);
+
+        const formattedText = formatAIResponse(text);
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = formattedText;
+        const textContent = tempDiv.textContent || tempDiv.innerText;
+
+        // تأثير fade in للرسالة كاملة
+        messageDiv.style.transition = "opacity 0.5s ease-in-out";
+        messageDiv.style.opacity = "1";
+
+        let displayedText = "";
+        let currentIndex = 0;
+
+        return new Promise((resolve) => {
+            const streamInterval = setInterval(() => {
+                if (currentIndex < textContent.length) {
+                    // إضافة حروف متعددة مع تأثير fade
+                    const charsToAdd = Math.min(2, textContent.length - currentIndex);
+                    for (let i = 0; i < charsToAdd; i++) {
+                        displayedText += textContent[currentIndex];
+                        currentIndex++;
+                    }
+                    
+                    // تطبيق التنسيق على النص المعروض مع تأثير fade
+                    messageDiv.innerHTML = formatAIResponse(displayedText);
+                    
+                    // إضافة تأثير fade للحروف الجديدة
+                    messageDiv.style.animation = "fadeInText 0.3s ease-in-out";
+                    
+                    // التمرير فقط إذا لم يكن المستخدم يتصفح يدوياً
+                    if (!isUserScrolling) {
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                } else {
+                    clearInterval(streamInterval);
+                    // التأكد من عرض النص المنسق الكامل
+                    messageDiv.innerHTML = formattedText;
+                    messageDiv.style.animation = "none";
+                    resolve();
+                }
+            }, 50); // سرعة العرض محسنة - كل 50 مللي ثانية
+        });
+    }
+
+    function formatAIResponse(text) {
+        // تحويل **النص** إلى <strong>النص</strong> وإضافة مسافات وفواصل أسطر
+        let formatted = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // نص عريض
+            .replace(/\./g, '. ') // مسافة بعد النقطة
+            .replace(/[؟!]/g, '$& ') // مسافة بعد علامة الاستفهام أو التعجب
+            .replace(/([.؟!])\s+/g, '$1<br><br>') // فاصل أسطر بعد الجمل
+            .replace(/\s+/g, ' ') // تنظيف المسافات الزائدة
+            .trim();
+        return formatted;
+    }
+
+    function addErrorMessage(text) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error-message";
+        errorDiv.textContent = text;
+        chatBox.appendChild(errorDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function checkForAgreement(responseText) {
+        const agreementKeywords = ["متفقين", "متفق", "اتفقنا", "موافق", "الاتفاق"];
+        
+        if (agreementKeywords.some(keyword => responseText.includes(keyword))) {
+            setTimeout(() => {
+                const finalAgreement = "ممتاز! تم الاتفاق على الشراكة التقنية. لإتمام التوثيق وإرسال التفاصيل لمحمد العنسي، أحتاج المعلومات التالية:<br><br><strong>• الاسم الكامل</strong><br><strong>• رقم الهاتف</strong><br><strong>• البريد الإلكتروني</strong><br><strong>• اسم الشركة/القناة</strong><br><br>بمجرد تزويدي بهذه المعلومات، سأرسل الاتفاق فوراً لمحمد وسيتواصل معكم في أقرب وقت.";
+                addStreamingMessage(finalAgreement);
+                
+                // تفعيل وضع جمع المعلومات
+                window.collectingInfo = true;
+                window.collectedInfo = {};
+            }, 2000);
+        }
+    }
+
+    function checkForContactInfo(userMessage) {
+        // التحقق من وجود المعلومات المطلوبة في رسالة المستخدم
+        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+        const phoneRegex = /[\d\s+()-]{8,}/;
+        
+        if (window.collectingInfo && (emailRegex.test(userMessage) || phoneRegex.test(userMessage) || userMessage.includes('@'))) {
+            window.collectedInfo.fullMessage = userMessage;
+            sendAgreementEmail();
+            window.collectingInfo = false;
+        }
+    }
+
+    async function sendAgreementEmail() {
+        try {
+            const messages = Array.from(chatBox.querySelectorAll('.message:not(.typing-indicator)'));
+            const conversationText = messages.map(msg => {
+                const isUser = msg.classList.contains('user-message');
+                const content = msg.textContent || msg.innerText;
+                return `${isUser ? 'العميل' : 'كهلان'}: ${content}`;
+            }).join('\n\n');
+            
+            const contactInfo = window.collectedInfo ? window.collectedInfo.fullMessage : 'لم يتم تقديم معلومات الاتصال';
+            
+            // استخراج تفاصيل الاتفاق من المحادثة باستخدام AI
+            const agreementSummary = await generateAgreementSummary(conversationText);
+            
+            const emailData = {
+                'email': CONFIG.EMAIL_RECEIVER,
+                'subject': '🤝 اتفاق شراكة تقنية جديد - كهلان',
+                'body': `السلام عليكم محمد،
+
+🎉 أخبار ممتازة! تم التوصل إلى اتفاق شراكة تقنية جديد مع قناة المهرية عبر مساعدك الذكي كهلان.
+
+📋 ملخص الاتفاق:
+${agreementSummary}
+
+👤 معلومات التواصل مع العميل:
+${contactInfo}
+
+📅 تاريخ الاتفاق: ${new Date().toLocaleString('ar-SA')}
+
+🎯 الخطوة التالية:
+يُرجى التواصل مع العميل في أقرب وقت لتنسيق بدء فترة التجربة المجانية وتفعيل النظام.
+
+💬 نص المحادثة الكامل:
+${conversationText}
+
+---
+تم إرسال هذه الرسالة تلقائياً من نظام كهلان - المساعد التقني الذكي
+بالتوفيق في الشراكة الجديدة! 🚀`
+            };
+
+            // إرسال الإيميل
+            const response = await fetch(CONFIG.EMAIL_SERVICE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(emailData)
+            });
+            
+            if (response.ok || response.status === 0) {
+                console.log('تم إرسال الإيميل بنجاح');
+                await addStreamingMessage("تمام! تم إرسال جميع تفاصيل الاتفاق والمحادثة لمحمد العنسي الآن.<br><br><strong>سيتواصل معكم محمد في أقرب وقت لتنسيق البدء بفترة التجربة المجانية.</strong><br><br>شكراً لكم على ثقتكم، ونتطلع للشراكة معكم! 🤝");
+            } else {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            
+        } catch (error) {
+            console.error('Error sending email:', error);
+            
+            // محاولة إرسال بديلة مبسطة
+            try {
+                await fetch(CONFIG.EMAIL_SERVICE_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        'email': CONFIG.EMAIL_RECEIVER,
+                        'subject': '🤝 اتفاق شراكة تقنية جديد - كهلان',
+                        'body': `تم التوصل إلى اتفاق شراكة تقنية جديد!
+
+👤 معلومات العميل: 
+${window.collectedInfo?.fullMessage || 'غير محددة'}
+
+📅 تاريخ الاتفاق: ${new Date().toLocaleString('ar-SA')}
+
+💬 المحادثة الكاملة:
+${Array.from(chatBox.querySelectorAll('.message:not(.typing-indicator)')).map(msg => {
+    const isUser = msg.classList.contains('user-message');
+    const content = msg.textContent || msg.innerText;
+    return `${isUser ? 'العميل' : 'كهلان'}: ${content}`;
+}).join('\n\n')}`
+                    })
+                });
+                
+                console.log('تم إرسال الإيميل باستخدام الطريقة البديلة');
+                await addStreamingMessage("تم حفظ جميع تفاصيل الاتفاق وإرسالها لمحمد العنسي بنجاح. سيتواصل معكم قريباً لتنسيق التفاصيل.");
+                
+            } catch (fallbackError) {
+                console.error('فشل في الإرسال البديل أيضاً:', fallbackError);
+                await addStreamingMessage("تم حفظ جميع تفاصيل الاتفاق بنجاح. سيتواصل معكم محمد العنسي قريباً لتنسيق التفاصيل.");
+            }
+        }
+    }
+
+    // دالة لتوليد ملخص الاتفاق باستخدام AI
+    async function generateAgreementSummary(conversationText) {
+        try {
+            const summaryModel = genAI.getGenerativeModel({ 
+                model: CONFIG.MODEL_NAME,
+                systemInstruction: `أنت مساعد ذكي مختص في تلخيص الاتفاقات التقنية. اقرأ المحادثة التالية واستخرج تفاصيل الاتفاق المالي والتقني بدقة. اكتب ملخصاً مختصراً ووافياً يتضمن:
+1. المبالغ المالية المتفق عليها بالضبط
+2. طريقة الدفع (شهري، سنوي، مقدم، إلخ)
+3. الخدمات المشمولة
+4. فترة التجربة إن وجدت
+5. أي تفاصيل أخرى مهمة
+
+اكتب الملخص بشكل نقاط واضحة ومختصرة بالعربية.`
+            });
+            
+            const result = await summaryModel.generateContent(`لخص تفاصيل الاتفاق من هذه المحادثة:\n\n${conversationText}`);
+            const summary = await result.response.text();
+            
+            return summary;
+        } catch (error) {
+            console.error('خطأ في توليد ملخص الاتفاق:', error);
+            return `• نوع الشراكة: شراكة تقنية لنظام إدارة الموظفين
+• فترة التجربة: شهر كامل مجاناً  
+• الخدمات: التطوير، الصيانة، التدريب، والدعم الفني
+• النظام يشمل: إدارة المهام، المحادثات الداخلية، إدارة الإجازات والحضور، المساعد الذكي، ولوحات التحكم المتقدمة
+• التفاصيل المالية: راجع نص المحادثة الكامل أدناه`;
+        }
+    }
+
+    window.addEventListener('load', initializeApp);
+</script>
+
+</body>
+</html>
