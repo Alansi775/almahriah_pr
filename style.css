@@ -299,3 +299,25 @@ h2::after {
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+/* kahlan features section */
+
+
+.kahlan-features-grid {
+    display: grid;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.feature-item {
+    background-color: #2d2d2d;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.feature-item h3 {
+    color: #5DADE2;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
