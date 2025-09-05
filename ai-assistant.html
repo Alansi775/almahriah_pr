@@ -485,7 +485,8 @@
             return responseText;
         } catch (error) {
             console.error("AI API Error:", error);
-            throw new Error(`فشل في التواصل مع AI: ${error.message}`);
+            // تعديل الرسالة التي تظهر للمستخدم
+            throw new Error(`فشل في التواصل مع المساعد التقني. يرجى المحاولة في وقت لاحق.`);
         }
     }
 
