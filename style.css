@@ -335,3 +335,12 @@ h2::after {
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
+
+.stylish-paragraph-container {
+    margin-top: 50px; /* Adjust this value for more or less space */
+    margin-bottom: 50px; /* Adjust this value for more or less space */
+    padding: 20px;
+    background-color: var(--dark-surface);
+    border-radius: 10px;
+    text-align: center;
+}
